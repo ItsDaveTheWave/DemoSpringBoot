@@ -3,6 +3,9 @@ package com.dtw.demoSpringBoot.dto;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+
 import com.dtw.demoSpringBoot.entity.Person;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonProperty.Access;
@@ -16,8 +19,13 @@ public class PersonDto {
 
 	@JsonProperty(access = Access.READ_ONLY)
 	private Long id;
+	
+	@NotBlank
 	private String name;
+	
+	@NotNull
 	private Integer age;
+	
 	private List<String> favorites;
 	
 	
