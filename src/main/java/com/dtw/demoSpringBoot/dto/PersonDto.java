@@ -1,5 +1,4 @@
 package com.dtw.demoSpringBoot.dto;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -10,11 +9,14 @@ import com.dtw.demoSpringBoot.entity.Person;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonProperty.Access;
 
-import lombok.Getter;
-import lombok.Setter;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
-@Getter
-@Setter
+@Data
+@Builder
+@AllArgsConstructor @NoArgsConstructor
 public class PersonDto {
 
 	@JsonProperty(access = Access.READ_ONLY)
@@ -29,18 +31,15 @@ public class PersonDto {
 	private List<String> favorites;
 	
 	
-	public PersonDto() {}
-	public PersonDto(String name, Integer age, List<String> favorites) {
-		this.name = name;
-		this.age = age;
-		this.favorites = favorites;
+	
+	private static PersonDtoBuilder builder() {
+		return new PersonDtoBuilder();
 	}
-	public PersonDto(Long id, String name, Integer age, List<String> favorites) {
-		this.id = id;
-		this.name = name;
-		this.age = age;
-		this.favorites = favorites;
+	
+	public static PersonDtoBuilder builder(String name, Integer age) {
+		return builder().name(name).age(age);
 	}
+	
 	
 	
 	public Person toEntity() {

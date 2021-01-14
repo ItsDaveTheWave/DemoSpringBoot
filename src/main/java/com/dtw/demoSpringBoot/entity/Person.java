@@ -1,5 +1,4 @@
 package com.dtw.demoSpringBoot.entity;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -12,12 +11,15 @@ import javax.persistence.Id;
 
 import com.dtw.demoSpringBoot.dto.PersonDto;
 
-import lombok.Getter;
-import lombok.Setter;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Entity
-@Getter
-@Setter
+@Data
+@Builder
+@AllArgsConstructor @NoArgsConstructor
 public class Person {
 
 	@Id
@@ -35,18 +37,15 @@ public class Person {
 	private List<String> favorites;
 	
 	
-	public Person() {}
-	public Person(String name, Integer age, List<String> favorites) {
-		this.name = name;
-		this.age = age;
-		this.favorites = favorites;
+	
+	private static PersonBuilder builder() {
+		return new PersonBuilder();
 	}
-	public Person(Long id, String name, Integer age, List<String> favorites) {
-		this.id = id;
-		this.name = name;
-		this.age = age;
-		this.favorites = favorites;
+	
+	public static PersonBuilder builder(String name, Integer age) {
+		return builder().name(name).age(age);
 	}
+	
 	
 	
 	public PersonDto toDto() {
