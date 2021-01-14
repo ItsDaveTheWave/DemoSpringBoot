@@ -1,5 +1,4 @@
 package com.dtw.demoSpringBoot.controller;
-
 import java.util.List;
 
 import javax.validation.Valid;
@@ -33,12 +32,12 @@ public class PersonController {
 	
 	@GetMapping
 	public List<PersonDto> getAll() {
-		return Person.listToDto(personService.getAll());
+		return personService.listToDto(personService.getAll());
 	}
 	
 	@PostMapping
 	public PersonDto create(@RequestBody @Valid PersonDto personDto) {
-		return personService.create(personDto.toEntity()).toDto();
+		return personService.toDto(personService.create(personService.toEntity(personDto)));
 	}
 	
 	@PatchMapping(path = "{id}", consumes = "application/json-patch+json")
@@ -46,7 +45,7 @@ public class PersonController {
 		
 		try {
 			Person patchedPerson = personService.partialUpdate(id, patch);
-			return ResponseEntity.ok(patchedPerson.toDto());
+			return ResponseEntity.ok(personService.toDto(patchedPerson));
 		} catch(JsonPatchException | JsonProcessingException e) {
 			return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
 		} catch(PersonNotFoundException e1) {

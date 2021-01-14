@@ -1,7 +1,8 @@
 package com.dtw.demoSpringBoot.service;
-
+import java.util.ArrayList;
 import java.util.List;
 
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -21,9 +22,13 @@ public class PersonService {
 
 	@Autowired
 	private PersonRepo personRepo;
+	
 	@Autowired
 	private ObjectMapper objectMapper;
-
+	
+	@Autowired
+	private ModelMapper modelMapper;
+	
 	
 	public List<Person> getAll() {
 		return personRepo.findAll();
@@ -36,7 +41,7 @@ public class PersonService {
 	public Person partialUpdate(Long id, JsonPatch patch)
 			throws JsonPatchException, JsonProcessingException, PersonNotFoundException {
 		Person person = personRepo.findById(id).orElseThrow(PersonNotFoundException::new);
-		Person personPatched = applyPatch(patch, person.toDto());
+		Person personPatched = applyPatch(patch, toDto(person));
 		personPatched.setId(id);
 		personRepo.save(personPatched);
 		return personPatched;
@@ -48,6 +53,34 @@ public class PersonService {
 
 		//TODO: validate patched object like you would with @Valid
 		
-		return objectMapper.disable(MapperFeature.USE_ANNOTATIONS).treeToValue(patched, PersonDto.class).toEntity();
+		return toEntity(objectMapper.disable(MapperFeature.USE_ANNOTATIONS).treeToValue(patched, PersonDto.class));
+	}
+	
+	public PersonDto toDto(Person person) {
+		return modelMapper.map(person, PersonDto.class);
+	}
+	
+	public Person toEntity(PersonDto personDto) {
+		return modelMapper.map(personDto, Person.class);
+	}
+	
+	public List<PersonDto> listToDto(List<Person> personList) {
+		List<PersonDto> personDtoList = new ArrayList<PersonDto>();
+		
+		for(Person person : personList) {
+			personDtoList.add(toDto(person));
+		}
+		
+		return personDtoList;
+	}
+	
+	public List<Person> listToEntity(List<PersonDto> personDtoList) {
+		List<Person> personList = new ArrayList<Person>();
+		
+		for(PersonDto personDto : personDtoList) {
+			personList.add(toEntity(personDto));
+		}
+		
+		return personList;
 	}
 }

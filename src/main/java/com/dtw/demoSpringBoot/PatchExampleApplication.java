@@ -1,5 +1,6 @@
 package com.dtw.demoSpringBoot;
 
+import org.modelmapper.ModelMapper;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
@@ -14,7 +15,12 @@ public class PatchExampleApplication {
 	}
 
 	@Bean
-	public ObjectMapper objectMapper() {
+	public ObjectMapper getObjectMapper() {
 		return new ObjectMapper();
+	}
+	
+	@Bean
+	public ModelMapper getModelMapper() {
+		return new ModelMapper();
 	}
 }
