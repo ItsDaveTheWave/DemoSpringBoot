@@ -4,7 +4,6 @@ import java.util.List;
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -47,9 +46,9 @@ public class PersonController {
 			Person patchedPerson = personService.partialUpdate(id, patch);
 			return ResponseEntity.ok(personService.toDto(patchedPerson));
 		} catch(JsonPatchException | JsonProcessingException e) {
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+			return ResponseEntity.badRequest().build();
 		} catch(PersonNotFoundException e1) {
-			return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+			return ResponseEntity.notFound().build();
 		}
 	}
 }
