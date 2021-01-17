@@ -3,6 +3,7 @@ import java.util.List;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Positive;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonProperty.Access;
@@ -24,6 +25,7 @@ public class PersonDto {
 	private String name;
 	
 	@NotNull
+	@Positive
 	private Integer age;
 	
 	private List<String> favorites;
