@@ -7,10 +7,10 @@ import org.springframework.context.annotation.Bean;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 @SpringBootApplication
-public class PatchExampleApplication {
+public class DemoSpringBootApplication {
 	
 	public static void main(String[] args) {
-		SpringApplication.run(PatchExampleApplication.class, args);
+		SpringApplication.run(DemoSpringBootApplication.class, args);
 	}
 
 	@Bean
