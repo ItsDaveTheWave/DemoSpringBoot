@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.dtw.demoSpringBoot.dto.PersonDto;
 import com.dtw.demoSpringBoot.entity.Person;
-import com.dtw.demoSpringBoot.exceptions.PersonNotFoundException;
+import com.dtw.demoSpringBoot.exceptions.EntityNotFoundException;
 import com.dtw.demoSpringBoot.service.PersonService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.github.fge.jsonpatch.JsonPatch;
@@ -40,15 +40,9 @@ public class PersonController {
 	}
 	
 	@PatchMapping(path = "{id}", consumes = "application/json-patch+json")
-	public ResponseEntity<PersonDto> partialUpdate(@PathVariable("id") Long id, @RequestBody JsonPatch patch) {
-		
-		try {
-			Person patchedPerson = personService.partialUpdate(id, patch);
-			return ResponseEntity.ok(personService.toDto(patchedPerson));
-		} catch(JsonPatchException | JsonProcessingException e) {
-			return ResponseEntity.badRequest().build();
-		} catch(PersonNotFoundException e1) {
-			return ResponseEntity.notFound().build();
-		}
+	public ResponseEntity<PersonDto> partialUpdate(@PathVariable("id") Long id, @RequestBody JsonPatch patch) 
+			throws EntityNotFoundException, JsonProcessingException, JsonPatchException {
+		Person patchedPerson = personService.partialUpdate(id, patch);
+		return ResponseEntity.ok(personService.toDto(patchedPerson));
 	}
 }

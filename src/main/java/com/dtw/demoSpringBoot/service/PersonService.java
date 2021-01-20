@@ -6,7 +6,7 @@ import org.springframework.stereotype.Service;
 
 import com.dtw.demoSpringBoot.dto.PersonDto;
 import com.dtw.demoSpringBoot.entity.Person;
-import com.dtw.demoSpringBoot.exceptions.PersonNotFoundException;
+import com.dtw.demoSpringBoot.exceptions.EntityNotFoundException;
 import com.dtw.demoSpringBoot.repo.PersonRepo;
 import com.dtw.demoSpringBoot.utils.EntityDtoConverter;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -40,8 +40,8 @@ public class PersonService extends EntityDtoConverter<Person, PersonDto>{
 	}
 
 	public Person partialUpdate(Long id, JsonPatch patch)
-			throws JsonPatchException, JsonProcessingException, PersonNotFoundException {
-		Person person = personRepo.findById(id).orElseThrow(PersonNotFoundException::new);
+			throws JsonPatchException, JsonProcessingException, EntityNotFoundException {
+		Person person = personRepo.findById(id).orElseThrow(() -> new EntityNotFoundException(Person.class, id));
 		Person personPatched = applyPatch(patch, toDto(person));
 		personPatched.setId(id);
 		personRepo.save(personPatched);
