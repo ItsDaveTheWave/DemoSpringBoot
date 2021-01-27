@@ -47,13 +47,16 @@ public class PersonService extends EntityDtoConverter<Person, PersonDto>{
 		personRepo.save(personPatched);
 		return personPatched;
 	}
+	
+	public void delete(Long id) 
+			throws EntityNotFoundException {
+		Person person = personRepo.findById(id).orElseThrow(() -> new EntityNotFoundException(Person.class, id));
+		personRepo.delete(person);
+	}
 
 	private Person applyPatch(JsonPatch patch, PersonDto target)
 			throws JsonPatchException, JsonProcessingException {
-		JsonNode patched = patch.apply(objectMapper.convertValue(target, JsonNode.class));
-
-		//TODO: validate patched object like you would with @Valid
-		
+		JsonNode patched = patch.apply(objectMapper.convertValue(target, JsonNode.class));		
 		return toEntity(objectMapper.disable(MapperFeature.USE_ANNOTATIONS).treeToValue(patched, PersonDto.class));
 	}
 }
