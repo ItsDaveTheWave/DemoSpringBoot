@@ -13,7 +13,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.dtw.demoSpringBoot.dto.PersonDto;
@@ -33,13 +32,15 @@ public class PersonController {
 	
 	
 	@GetMapping
-	public List<PersonDto> getAll() {
-		return personService.listToDto(personService.getAll());
+	public ResponseEntity<List<PersonDto>> getAll() {
+		List<PersonDto> body = personService.listToDto(personService.getAll());
+		return ResponseEntity.ok(body);
 	}
 	
 	@PostMapping
-	public PersonDto create(@RequestBody @Valid PersonDto personDto) {
-		return personService.toDto(personService.create(personService.toEntity(personDto)));
+	public ResponseEntity<PersonDto> create(@RequestBody @Valid PersonDto personDto) {
+		PersonDto body = personService.toDto(personService.create(personService.toEntity(personDto)));
+		return new ResponseEntity<PersonDto>(body, HttpStatus.CREATED);
 	}
 	
 	@PatchMapping(path = "{id}", consumes = "application/json-patch+json")
@@ -50,9 +51,9 @@ public class PersonController {
 	}
 	
 	@DeleteMapping("{id}")
-	@ResponseStatus(HttpStatus.NO_CONTENT)
-	public void delete(@PathVariable("id") Long id) 
+	public ResponseEntity<Void> delete(@PathVariable("id") Long id) 
 			throws EntityNotFoundException {
 		personService.delete(id);
+		return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
 	}
 }
