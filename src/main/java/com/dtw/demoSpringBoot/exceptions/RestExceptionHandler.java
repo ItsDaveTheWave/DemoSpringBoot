@@ -11,72 +11,77 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
-import com.fasterxml.jackson.databind.exc.InvalidFormatException;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.github.fge.jsonpatch.JsonPatchException;
 
 @Order(Ordered.HIGHEST_PRECEDENCE)
 @ControllerAdvice
 public class RestExceptionHandler {
 
+	// Generic error
 	@ExceptionHandler(Exception.class)
 	protected ResponseEntity<ApiError> handleException(Exception ex) {
 		ex.printStackTrace();
 		ApiError apiError = new ApiError(HttpStatus.INTERNAL_SERVER_ERROR, "Unknown error", ex);
 		return buildResponseEntity(apiError);
 	}
-	
+
+	// Invalid path/method error
 	@ExceptionHandler(HttpRequestMethodNotSupportedException.class)
 	protected ResponseEntity<ApiError> handleHttpRequestMethodNotSupported(HttpRequestMethodNotSupportedException ex) {
 		ApiError apiError = new ApiError(HttpStatus.METHOD_NOT_ALLOWED, "Method not allowed on this path", ex);
 		return buildResponseEntity(apiError);
 	}
-	
+
+	// Entity not found error
 	@ExceptionHandler(EntityNotFoundException.class)
 	protected ResponseEntity<ApiError> handleEntityNotFound(EntityNotFoundException ex) {
 		ApiError apiError = new ApiError(HttpStatus.NOT_FOUND);
 		apiError.setMessage(ex.getMessage());
 		return buildResponseEntity(apiError);
 	}
-	
-	// Produced by @Valid
+
+	// Validation error
 	@ExceptionHandler(MethodArgumentNotValidException.class)
 	protected ResponseEntity<ApiError> handleMethodArgumentNotValid(MethodArgumentNotValidException ex) {
 		ApiError apiError = new ApiError(HttpStatus.BAD_REQUEST);
 		apiError.setMessage("Validation error");
-		for(FieldError error : ex.getFieldErrors()) {
+		for (FieldError error : ex.getFieldErrors()) {
 			apiError.addSubError(new ApiValidationError(ex.getTarget().getClass(), error));
 		}
 		return buildResponseEntity(apiError);
 	}
-	
-	// Produces when failing to parse a Json token to a specific type, e.g. converting this({"a": null}) to string
-	@ExceptionHandler(HttpMessageNotReadableException.class)
-	protected ResponseEntity<ApiError> handleHttpMessageNotReadableException(HttpMessageNotReadableException ex) {
-		ApiError apiError = new ApiError(HttpStatus.BAD_REQUEST, "JSON parse error", ex);
+
+	// Json parse error
+	@ExceptionHandler({ HttpMessageNotReadableException.class, JsonProcessingException.class })
+	protected ResponseEntity<ApiError> handleHttpMessageNotReadable_JsonProcessing(Exception ex) {
+		ApiError apiError = new ApiError(HttpStatus.BAD_REQUEST, "JSON processing/parse error", ex);
 		return buildResponseEntity(apiError);
 	}
-	
+
+	// Type conversion error
 	@ExceptionHandler(MethodArgumentTypeMismatchException.class)
-	protected ResponseEntity<ApiError> handleMethodArgumentTypeMismatchException(MethodArgumentTypeMismatchException ex) {
+	protected ResponseEntity<ApiError> handleMethodArgumentTypeMismatch(MethodArgumentTypeMismatchException ex) {
 		String message = "Type conversion error.";
-		if(ex.getValue() != null && ex.getRequiredType() != null) {
-			message = message + " The value {" + ex.getValue() + 
-					"} can not be converted to the type {" + ex.getRequiredType().getSimpleName() + "}.";
+		Object value = ex.getValue();
+		Class<?> requiredType = ex.getRequiredType();
+		
+		if (value != null && requiredType != null) {
+			message = message + " The value {" + value + "} can not be converted to the type {"
+					+ requiredType.getSimpleName() + "}.";
 		}
+		
 		ApiError apiError = new ApiError(HttpStatus.BAD_REQUEST, message, ex);
 		return buildResponseEntity(apiError);
 	}
-	
-	@ExceptionHandler(InvalidFormatException.class)
-	protected ResponseEntity<ApiError> handleInvalidFormatException(InvalidFormatException ex) {
-		String message = "Invalid format error.";
-		if(ex.getValue() != null && ex.getTargetType() != null) {
-			message = message + " The value {" + ex.getValue() + 
-					"} can not be converted to the type {" + ex.getTargetType().getSimpleName() + "}.";
-		}
-		ApiError apiError = new ApiError(HttpStatus.BAD_REQUEST, message, ex);
+
+	// JsonPatch error
+	@ExceptionHandler(JsonPatchException.class)
+	protected ResponseEntity<ApiError> handleJsonPatch(JsonPatchException ex) {
+		ApiError apiError = new ApiError(HttpStatus.BAD_REQUEST, "JSONPatch error.", ex);
 		return buildResponseEntity(apiError);
-	}		
-	
+	}
+
 	private ResponseEntity<ApiError> buildResponseEntity(ApiError apiError) {
 		return new ResponseEntity<>(apiError, apiError.getStatus());
 	}
