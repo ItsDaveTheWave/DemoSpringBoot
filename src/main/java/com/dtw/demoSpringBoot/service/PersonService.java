@@ -11,7 +11,6 @@ import com.dtw.demoSpringBoot.repo.PersonRepo;
 import com.dtw.demoSpringBoot.utils.EntityDtoConverter;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.fge.jsonpatch.JsonPatch;
 import com.github.fge.jsonpatch.JsonPatchException;
@@ -42,8 +41,9 @@ public class PersonService extends EntityDtoConverter<Person, PersonDto>{
 	public Person partialUpdate(Long id, JsonPatch patch)
 			throws JsonPatchException, JsonProcessingException, EntityNotFoundException {
 		Person person = personRepo.findById(id).orElseThrow(() -> new EntityNotFoundException(Person.class, id));
-		Person personPatched = applyPatch(patch, toDto(person));
+		Person personPatched = applyPatch(patch, person);
 		personPatched.setId(id);
+		
 		personRepo.save(personPatched);
 		return personPatched;
 	}
@@ -54,9 +54,9 @@ public class PersonService extends EntityDtoConverter<Person, PersonDto>{
 		personRepo.delete(person);
 	}
 
-	private Person applyPatch(JsonPatch patch, PersonDto target)
+	private Person applyPatch(JsonPatch patch, Person target)
 			throws JsonPatchException, JsonProcessingException {
 		JsonNode patched = patch.apply(objectMapper.convertValue(target, JsonNode.class));		
-		return toEntity(objectMapper.disable(MapperFeature.USE_ANNOTATIONS).treeToValue(patched, PersonDto.class));
+		return objectMapper.treeToValue(patched, Person.class);
 	}
 }

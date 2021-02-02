@@ -1,9 +1,13 @@
 package com.dtw.demoSpringBoot.exceptions;
+import javax.validation.ConstraintViolation;
+import javax.validation.ConstraintViolationException;
+
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.transaction.TransactionSystemException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -41,13 +45,35 @@ public class RestExceptionHandler {
 		return buildResponseEntity(apiError);
 	}
 
-	// Validation error
+	// Validation error by @Valid
 	@ExceptionHandler(MethodArgumentNotValidException.class)
 	protected ResponseEntity<ApiError> handleMethodArgumentNotValid(MethodArgumentNotValidException ex) {
 		ApiError apiError = new ApiError(HttpStatus.BAD_REQUEST);
 		apiError.setMessage("Validation error");
 		for (FieldError error : ex.getFieldErrors()) {
 			apiError.addSubError(new ApiValidationError(ex.getTarget().getClass(), error));
+		}
+		return buildResponseEntity(apiError);
+	}
+	
+	// Can be thrown when commiting changes to DB, can contain ConstraintViolationException(if error is because of validation)
+	@ExceptionHandler(TransactionSystemException.class)
+	protected ResponseEntity<ApiError> handleTransactionSystem(TransactionSystemException ex) {
+		if(ex.getRootCause() instanceof ConstraintViolationException) {
+			return handleConstraintViolation((ConstraintViolationException) ex.getRootCause());
+		}
+		else {
+			return handleException(ex);
+		}
+	}
+	
+	// Validation error by Validator	
+	@ExceptionHandler(ConstraintViolationException.class)
+	protected ResponseEntity<ApiError> handleConstraintViolation(ConstraintViolationException ex) {
+		ApiError apiError = new ApiError(HttpStatus.BAD_REQUEST);
+		apiError.setMessage("Validation error");
+		for(ConstraintViolation<?> violation : ex.getConstraintViolations()) {
+			apiError.addSubError(new ApiValidationError(violation));
 		}
 		return buildResponseEntity(apiError);
 	}

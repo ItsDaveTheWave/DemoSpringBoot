@@ -1,4 +1,6 @@
 package com.dtw.demoSpringBoot.exceptions;
+import javax.validation.ConstraintViolation;
+
 import org.springframework.validation.FieldError;
 
 import lombok.AllArgsConstructor;
@@ -10,25 +12,28 @@ import lombok.EqualsAndHashCode;
 @AllArgsConstructor
 public class ApiValidationError extends ApiSubError {
 	
-   private String object;
+   private String objectType;
    private String field;
    private Object rejectedValue;
    private String message;
 
-   public ApiValidationError(String object, String message) {
-       this.object = object;
+   public ApiValidationError(String objectType, String message) {
+       this.objectType = objectType;
        this.message = message;
    }
    
-   public ApiValidationError(Class<?> clazz, FieldError fieldError) {
-	   String objectType = clazz.getSimpleName();
-	   if(objectType.toLowerCase().endsWith("dto")) {
-		   objectType = objectType.substring(0, objectType.length() - 3);
-	   }
+   public ApiValidationError(Class<?> clazz, FieldError fieldError) {	   
+	   this.objectType = clazz.getSimpleName();
+	   this.field = fieldError.getField();
+	   this.rejectedValue = fieldError.getRejectedValue();
+	   this.message = fieldError.getDefaultMessage();
+   }
+   
+   public ApiValidationError(ConstraintViolation<?> violation) {
 	   
-	   object = objectType;
-	   field = fieldError.getField();
-	   rejectedValue = fieldError.getRejectedValue();
-	   message = fieldError.getDefaultMessage();
+	   this.objectType = violation.getRootBeanClass().getSimpleName();
+	   this.field = violation.getPropertyPath().toString();	 
+	   this.rejectedValue = violation.getInvalidValue();
+	   this.message = violation.getMessage();
    }
 }
