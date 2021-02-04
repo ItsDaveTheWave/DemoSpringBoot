@@ -1,6 +1,7 @@
 package com.dtw.demoSpringBoot.dto;
 import java.util.List;
 
+import javax.validation.constraints.Max;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Positive;
@@ -13,6 +14,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import static com.dtw.demoSpringBoot.config.properties.ConstantProperties.*;
+
 @Data
 @Builder
 @AllArgsConstructor @NoArgsConstructor
@@ -22,11 +25,12 @@ public class PersonDto {
 	private Long id;
 	
 	//full-name, name and surname separated by '_', surname is optional
-	@NotBlank	
+	@NotBlank
 	private String name;
 	
 	@NotNull
 	@Positive
+	@Max(PERSON_MAX_AGE)
 	private Integer age;
 	
 	private List<String> favorites;
