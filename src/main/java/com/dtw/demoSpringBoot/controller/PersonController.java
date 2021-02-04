@@ -1,9 +1,11 @@
 package com.dtw.demoSpringBoot.controller;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.convert.ConversionService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -30,16 +32,24 @@ public class PersonController {
 	@Autowired
 	private PersonService personService;
 	
+	@Autowired
+	private ConversionService converter;
+	
 	
 	@GetMapping
 	public ResponseEntity<List<PersonDto>> getAll() {
-		List<PersonDto> body = personService.listToDto(personService.getAll());
+		List<PersonDto> body = new ArrayList<>();
+		List<Person> personList = personService.getAll();
+		personList.forEach((person) -> {
+			body.add(converter.convert(person, PersonDto.class));
+		});
 		return ResponseEntity.ok(body);
 	}
 	
 	@PostMapping
 	public ResponseEntity<PersonDto> create(@RequestBody @Valid PersonDto personDto) {
-		PersonDto body = personService.toDto(personService.create(personService.toEntity(personDto)));
+		Person person = converter.convert(personDto, Person.class);
+		PersonDto body = converter.convert(personService.create(person), PersonDto.class);
 		return new ResponseEntity<PersonDto>(body, HttpStatus.CREATED);
 	}
 	
@@ -47,7 +57,7 @@ public class PersonController {
 	public ResponseEntity<PersonDto> partialUpdate(@PathVariable("id") Long id, @RequestBody JsonPatch patch) 
 			throws EntityNotFoundException, JsonProcessingException, JsonPatchException {
 		Person patchedPerson = personService.partialUpdate(id, patch);
-		return ResponseEntity.ok(personService.toDto(patchedPerson));
+		return ResponseEntity.ok(converter.convert(patchedPerson, PersonDto.class));
 	}
 	
 	@DeleteMapping("{id}")

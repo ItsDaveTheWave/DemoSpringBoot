@@ -2,13 +2,13 @@ package com.dtw.demoSpringBoot.service;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.convert.ConversionService;
 import org.springframework.stereotype.Service;
 
 import com.dtw.demoSpringBoot.dto.PersonDto;
 import com.dtw.demoSpringBoot.entity.Person;
 import com.dtw.demoSpringBoot.exceptions.EntityNotFoundException;
 import com.dtw.demoSpringBoot.repo.PersonRepo;
-import com.dtw.demoSpringBoot.utils.EntityDtoConverter;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -16,7 +16,7 @@ import com.github.fge.jsonpatch.JsonPatch;
 import com.github.fge.jsonpatch.JsonPatchException;
 
 @Service
-public class PersonService extends EntityDtoConverter<Person, PersonDto>{
+public class PersonService {
 
 	@Autowired
 	private PersonRepo personRepo;
@@ -24,10 +24,8 @@ public class PersonService extends EntityDtoConverter<Person, PersonDto>{
 	@Autowired
 	private ObjectMapper objectMapper;
 	
-	
-	public PersonService() {
-		super(Person.class, PersonDto.class);
-	}
+	@Autowired
+	private ConversionService converter;
 	
 	
 	public List<Person> getAll() {		
@@ -41,11 +39,10 @@ public class PersonService extends EntityDtoConverter<Person, PersonDto>{
 	public Person partialUpdate(Long id, JsonPatch patch)
 			throws JsonPatchException, JsonProcessingException, EntityNotFoundException {
 		Person person = personRepo.findById(id).orElseThrow(() -> new EntityNotFoundException(Person.class, id));
-		Person personPatched = applyPatch(patch, person);
-		personPatched.setId(id);
+		PersonDto personDtoPatched = applyPatch(patch, converter.convert(person, PersonDto.class));
+		personDtoPatched.setId(id);
 		
-		personRepo.save(personPatched);
-		return personPatched;
+		return personRepo.save(converter.convert(personDtoPatched, Person.class));
 	}
 	
 	public void delete(Long id) 
@@ -54,9 +51,9 @@ public class PersonService extends EntityDtoConverter<Person, PersonDto>{
 		personRepo.delete(person);
 	}
 
-	private Person applyPatch(JsonPatch patch, Person target)
+	private PersonDto applyPatch(JsonPatch patch, PersonDto target)
 			throws JsonPatchException, JsonProcessingException {
 		JsonNode patched = patch.apply(objectMapper.convertValue(target, JsonNode.class));		
-		return objectMapper.treeToValue(patched, Person.class);
+		return objectMapper.treeToValue(patched, PersonDto.class);
 	}
 }

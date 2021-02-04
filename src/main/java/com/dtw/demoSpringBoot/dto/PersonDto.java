@@ -21,7 +21,8 @@ public class PersonDto {
 	@JsonProperty(access = Access.READ_ONLY)
 	private Long id;
 	
-	@NotBlank
+	//full-name, name and surname separated by '_', surname is optional
+	@NotBlank	
 	private String name;
 	
 	@NotNull
