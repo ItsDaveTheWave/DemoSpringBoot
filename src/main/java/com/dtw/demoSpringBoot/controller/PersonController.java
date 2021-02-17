@@ -23,7 +23,7 @@ import com.dtw.demoSpringBoot.entity.Person;
 import com.dtw.demoSpringBoot.exceptions.EntityNotFoundException;
 import com.dtw.demoSpringBoot.service.PersonService;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.github.fge.jsonpatch.JsonPatch;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.github.fge.jsonpatch.JsonPatchException;
 
 @RestController
@@ -55,9 +55,9 @@ public class PersonController {
 	}
 	
 	@PatchMapping(path = "{id}", consumes = "application/json-patch+json")
-	public ResponseEntity<PersonDto> partialUpdate(@PathVariable("id") Long id, @RequestBody JsonPatch patch) 
+	public ResponseEntity<PersonDto> partialUpdate(@PathVariable("id") Long id, @RequestBody JsonNode mergePatchNode) 
 			throws EntityNotFoundException, JsonProcessingException, JsonPatchException {
-		Person patchedPerson = personService.partialUpdate(id, patch);
+		Person patchedPerson = personService.partialUpdate(id, mergePatchNode);
 		return ResponseEntity.ok(converter.convert(patchedPerson, PersonDto.class));
 	}
 	

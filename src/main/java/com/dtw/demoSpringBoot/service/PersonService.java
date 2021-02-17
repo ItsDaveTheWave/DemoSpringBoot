@@ -13,8 +13,8 @@ import com.dtw.demoSpringBoot.repo.PersonRepo;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.github.fge.jsonpatch.JsonPatch;
 import com.github.fge.jsonpatch.JsonPatchException;
+import com.github.fge.jsonpatch.mergepatch.JsonMergePatch;
 
 @Service
 public class PersonService {
@@ -36,14 +36,15 @@ public class PersonService {
 	public Person create(Person person) {
 		return personRepo.save(person);
 	}
-
-	public Person partialUpdate(Long id, JsonPatch patch)
-			throws JsonPatchException, JsonProcessingException, EntityNotFoundException {
+	
+	public Person partialUpdate(Long id, JsonNode target) 
+			throws EntityNotFoundException, JsonPatchException, JsonProcessingException {
 		Person person = personRepo.findById(id).orElseThrow(() -> new EntityNotFoundException(Person.class, id));
-		PersonDto personDtoPatched = applyPatch(patch, converter.convert(person, PersonDto.class));
-		personDtoPatched.setId(id);
-		
-		return personRepo.save(converter.convert(personDtoPatched, Person.class));
+		JsonNode source = objectMapper.convertValue(converter.convert(person, PersonDto.class), JsonNode.class);
+		JsonMergePatch patch = JsonMergePatch.fromJson(target);
+		PersonDto patchedDto = applyPatch(patch, source);
+		patchedDto.setId(id);
+		return personRepo.save(converter.convert(patchedDto, Person.class));
 	}
 	
 	public void delete(Long id) 
@@ -51,10 +52,10 @@ public class PersonService {
 		Person person = personRepo.findById(id).orElseThrow(() -> new EntityNotFoundException(Person.class, id));
 		personRepo.delete(person);
 	}
-
-	private PersonDto applyPatch(JsonPatch patch, PersonDto target)
+	
+	private PersonDto applyPatch(JsonMergePatch patch, JsonNode target)
 			throws JsonPatchException, JsonProcessingException {
-		JsonNode patched = patch.apply(objectMapper.convertValue(target, JsonNode.class));		
+		JsonNode patched = patch.apply(target);		
 		return objectMapper.treeToValue(patched, PersonDto.class);
 	}
 }
