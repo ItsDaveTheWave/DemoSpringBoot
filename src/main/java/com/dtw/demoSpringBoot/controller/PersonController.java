@@ -56,7 +56,7 @@ public class PersonController {
 	
 	@PatchMapping(path = "{id}", consumes = "application/json-patch+json")
 	public ResponseEntity<PersonDto> partialUpdate(@PathVariable("id") Long id, @RequestBody JsonNode mergePatchNode) 
-			throws EntityNotFoundException, JsonProcessingException, JsonPatchException {
+			throws EntityNotFoundException, JsonProcessingException, JsonPatchException, IllegalArgumentException, IllegalAccessException {
 		Person patchedPerson = personService.partialUpdate(id, mergePatchNode);
 		return ResponseEntity.ok(converter.convert(patchedPerson, PersonDto.class));
 	}
