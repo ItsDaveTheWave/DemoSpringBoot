@@ -5,6 +5,7 @@ import java.util.List;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Positive;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
@@ -27,8 +28,9 @@ public class PersonDto {
 	@JsonProperty(access = Access.READ_ONLY)
 	private Long id;
 	
-	//full-name, name and surname separated by '_', surname is optional
+	//full-name, name and surname separated by '_', surname is optional, both name and surname can contain spaces
 	@NotBlank
+	@Pattern(regexp = "^[A-Za-z ]{2,20}(?:_[A-Za-z ]{2,40})?$")
 	private String name;
 	
 	@NotNull
