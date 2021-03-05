@@ -17,7 +17,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import static com.dtw.demoSpringBoot.config.properties.ConstantProperties.*;
+import static com.dtw.demoSpringBoot.config.properties.PersonProperties.*;
 
 @Data
 @Builder
@@ -30,12 +30,12 @@ public class PersonDto {
 	
 	//full-name, name and surname separated by '_', surname is optional, both name and surname can contain spaces
 	@NotBlank
-	@Pattern(regexp = "^[A-Za-z ]{2,20}(?:_[A-Za-z ]{2,40})?$")
+	@Pattern(regexp = NAME_SURNAME_REGEX)
 	private String name;
 	
 	@NotNull
 	@Positive
-	@Max(PERSON_MAX_AGE)
+	@Max(MAX_AGE)
 	private Integer age;
 	
 	private List<String> favorites;

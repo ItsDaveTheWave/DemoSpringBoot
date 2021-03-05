@@ -18,7 +18,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import static com.dtw.demoSpringBoot.config.properties.ConstantProperties.*;
+import static com.dtw.demoSpringBoot.config.properties.PersonProperties.*;
 
 @Entity
 @Data
@@ -41,7 +41,7 @@ public class Person {
 	@Column(nullable = false)
 	@NotNull
 	@Positive
-	@Max(PERSON_MAX_AGE)
+	@Max(MAX_AGE)
 	private Integer age;
 
 	@ElementCollection
