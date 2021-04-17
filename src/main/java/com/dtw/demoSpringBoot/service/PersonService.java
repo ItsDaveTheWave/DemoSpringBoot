@@ -35,8 +35,20 @@ public class PersonService {
 		return personRepo.findAll();
 	}
 	
+	public Person getOne(Long id) throws EntityNotFoundException {
+		Person person = personRepo.findById(id).orElseThrow(() -> new EntityNotFoundException(Person.class, id));
+		return person;
+	}
+	
 	public Person create(Person person) {
 		return personRepo.save(person);
+	}
+	
+	public Person totalUpdate(Long id, PersonDto target) 
+			throws EntityNotFoundException {
+		personRepo.findById(id).orElseThrow(() -> new EntityNotFoundException(Person.class, id));
+		target.setId(id);
+		return personRepo.save(converter.convert(target, Person.class));
 	}
 	
 	public Person partialUpdate(Long id, JsonNode target) 

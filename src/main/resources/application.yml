@@ -4,3 +4,8 @@ spring:  datasource:    url: jdbc:h2:mem:db    driver-class-name: org.h2.Driv
     username: sa
     password:   jpa:    database-platform: org.hibernate.dialect.H2Dialect
   h2:    console:      enabled: true
+springdoc:
+  swagger-ui:
+    enabled: true
+    path: /swagger  api-docs:    enabled: true
+    path: /api-docs

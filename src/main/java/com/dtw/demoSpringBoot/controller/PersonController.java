@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -47,11 +48,24 @@ public class PersonController {
 		return ResponseEntity.ok(body);
 	}
 	
+	@GetMapping("{id}")
+	public ResponseEntity<PersonDto> getOne(@PathVariable("id") Long id) 
+			throws EntityNotFoundException {
+		Person person = personService.getOne(id);
+		return ResponseEntity.ok(converter.convert(person, PersonDto.class));
+	}
+	
 	@PostMapping
 	public ResponseEntity<PersonDto> create(@RequestBody @Valid PersonDto personDto) {
 		Person person = converter.convert(personDto, Person.class);
 		PersonDto body = converter.convert(personService.create(person), PersonDto.class);
 		return new ResponseEntity<PersonDto>(body, HttpStatus.CREATED);
+	}
+	
+	@PutMapping("{id}")
+	public ResponseEntity<PersonDto> totalUpdate(@PathVariable("id") Long id, @RequestBody @Valid PersonDto target) 
+			throws EntityNotFoundException {
+		return ResponseEntity.ok(converter.convert(personService.totalUpdate(id, target), PersonDto.class));
 	}
 	
 	@PatchMapping(path = "{id}", consumes = "application/json-patch+json")
