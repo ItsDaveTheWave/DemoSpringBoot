@@ -1,10 +1,11 @@
 package com.dtw.demoSpringBoot.service;
 
 import java.lang.reflect.Field;
-import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.convert.ConversionService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import com.dtw.demoSpringBoot.dto.PersonDto;
@@ -31,8 +32,8 @@ public class PersonService {
 	private ConversionService converter;
 	
 	
-	public List<Person> getAll() {		
-		return personRepo.findAll();
+	public Page<Person> getAll(PageRequest pageRequest) {		
+		return personRepo.findAll(pageRequest);
 	}
 	
 	public Person getOne(Long id) throws EntityNotFoundException {

@@ -5,6 +5,7 @@ import javax.validation.ConstraintViolationException;
 
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
+import org.springframework.data.mapping.PropertyReferenceException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -101,6 +102,14 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
 	@ExceptionHandler(JsonPatchException.class)
 	protected ResponseEntity<ApiError> handleJsonPatch(JsonPatchException ex) {
 		ApiError apiError = new ApiError(HttpStatus.BAD_REQUEST, "JSONPatch error.", ex);
+		return buildResponseEntityApiError(apiError);
+	}
+	
+	// Paging or sort by incorrect query param exception
+	@ExceptionHandler(PropertyReferenceException.class)
+	protected ResponseEntity<ApiError> handlePropertyReference(PropertyReferenceException ex) {
+		ApiError apiError = new ApiError(HttpStatus.BAD_REQUEST);
+		apiError.setMessage(ex.getMessage());
 		return buildResponseEntityApiError(apiError);
 	}
 
