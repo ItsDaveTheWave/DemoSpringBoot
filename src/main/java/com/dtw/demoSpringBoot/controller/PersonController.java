@@ -25,7 +25,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.dtw.demoSpringBoot.config.properties.PersonProperties;
+import static com.dtw.demoSpringBoot.config.properties.PersonProperties.*;
 import com.dtw.demoSpringBoot.dto.PersonDto;
 import com.dtw.demoSpringBoot.entity.Person;
 import com.dtw.demoSpringBoot.exceptions.EntityNotFoundException;
@@ -37,7 +37,7 @@ import com.github.fge.jsonpatch.JsonPatchException;
 @RestController
 @RequestMapping(value = "person")
 @Validated
-public class PersonController {
+public class PersonController implements IController<PersonDto> {
 
 	@Autowired
 	private PersonService personService;
@@ -49,8 +49,8 @@ public class PersonController {
 	@GetMapping
 	public ResponseEntity<List<PersonDto>> getAll(
 			@RequestParam(defaultValue = "0") @Min(0) Integer page, 
-			@RequestParam(defaultValue = PersonProperties.DEFAULT_PAGE_SIZE) @Min(1) Integer pageSize, 
-			@RequestParam(defaultValue = PersonProperties.DEFAULT_SORT_BY) String sortBy) {
+			@RequestParam(defaultValue = DEFAULT_PAGE_SIZE) @Min(1) Integer pageSize, 
+			@RequestParam(defaultValue = DEFAULT_SORT_BY) String sortBy) {
 		
 		List<PersonDto> body = new ArrayList<>();
 		Page<Person> personPage = personService.getAll(PageRequest.of(page, pageSize, Sort.Direction.ASC, sortBy));
