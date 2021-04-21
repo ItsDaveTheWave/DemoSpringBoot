@@ -16,6 +16,7 @@ import javax.validation.constraints.Positive;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 import static com.dtw.demoSpringBoot.config.properties.PersonProperties.*;
@@ -24,7 +25,8 @@ import static com.dtw.demoSpringBoot.config.properties.PersonProperties.*;
 @Data
 @Builder
 @AllArgsConstructor @NoArgsConstructor
-public class Person {
+@EqualsAndHashCode(callSuper = false)
+public class Person extends AbstractEntity {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)

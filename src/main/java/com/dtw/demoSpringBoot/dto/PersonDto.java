@@ -15,15 +15,17 @@ import com.fasterxml.jackson.annotation.JsonProperty.Access;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 import static com.dtw.demoSpringBoot.config.properties.PersonProperties.*;
 
 @Data
 @Builder
+@EqualsAndHashCode(callSuper = false)
 @AllArgsConstructor @NoArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class PersonDto {
+public class PersonDto extends AbstractDto {
 
 	@JsonProperty(access = Access.READ_ONLY)
 	private Long id;
