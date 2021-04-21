@@ -14,7 +14,7 @@ import com.github.fge.jsonpatch.JsonPatchException;
 
 public interface IController<Entity> {
 
-	ResponseEntity<List<Entity>> getAll(@Min(0) Integer page, @Min(1) Integer pageSize, String sortBy);
+	ResponseEntity<List<Entity>> getAll(@Min(0) Integer page, @Min(1) Integer pageSize, String sortBy) throws EntityNotFoundException;
 	ResponseEntity<Entity> getOne(Long id) throws EntityNotFoundException;
 	ResponseEntity<Entity> create(@Valid Entity entity);
 	ResponseEntity<Entity> totalUpdate(Long id, @Valid Entity entity) throws EntityNotFoundException;

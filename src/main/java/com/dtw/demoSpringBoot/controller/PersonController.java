@@ -29,7 +29,9 @@ import static com.dtw.demoSpringBoot.config.properties.PersonProperties.*;
 import com.dtw.demoSpringBoot.dto.PersonDto;
 import com.dtw.demoSpringBoot.entity.Person;
 import com.dtw.demoSpringBoot.exceptions.EntityNotFoundException;
+import com.dtw.demoSpringBoot.repo.PersonRepo;
 import com.dtw.demoSpringBoot.service.PersonService;
+import com.dtw.demoSpringBoot.utils.LinkGenerator;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.github.fge.jsonpatch.JsonPatchException;
@@ -45,18 +47,26 @@ public class PersonController implements IController<PersonDto> {
 	@Autowired
 	private ConversionService converter;
 	
+	@Autowired
+	private PersonRepo personRepo;
+	
 	
 	@GetMapping
 	public ResponseEntity<List<PersonDto>> getAll(
 			@RequestParam(defaultValue = "0") @Min(0) Integer page, 
 			@RequestParam(defaultValue = DEFAULT_PAGE_SIZE) @Min(1) Integer pageSize, 
-			@RequestParam(defaultValue = DEFAULT_SORT_BY) String sortBy) {
+			@RequestParam(defaultValue = DEFAULT_SORT_BY) String sortBy) throws EntityNotFoundException {
 		
 		List<PersonDto> body = new ArrayList<>();
 		Page<Person> personPage = personService.getAll(PageRequest.of(page, pageSize, Sort.Direction.ASC, sortBy));
-		personPage.forEach((person) -> {
-			body.add(converter.convert(person, PersonDto.class));
-		});
+		LinkGenerator<Person, PersonDto> linkGenerator;
+		
+		for(Person person : personPage) {
+			PersonDto personDto = converter.convert(person, PersonDto.class);
+			linkGenerator = new LinkGenerator<Person, PersonDto>(personDto, PersonController.class, personRepo);
+			linkGenerator.self().build();
+			body.add(personDto);
+		}			
 		return ResponseEntity.ok(body);
 	}
 	
@@ -64,7 +74,10 @@ public class PersonController implements IController<PersonDto> {
 	public ResponseEntity<PersonDto> getOne(@PathVariable Long id) 
 			throws EntityNotFoundException {
 		Person person = personService.getOne(id);
-		return ResponseEntity.ok(converter.convert(person, PersonDto.class));
+		PersonDto personDto = converter.convert(person, PersonDto.class);
+		LinkGenerator<Person, PersonDto> linkGenerator = new LinkGenerator<Person, PersonDto>(personDto, PersonController.class, personRepo);
+		linkGenerator.self().first().last().previous().next().all().build();
+		return ResponseEntity.ok(personDto);
 	}
 	
 	@PostMapping
